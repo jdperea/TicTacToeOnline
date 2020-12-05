@@ -152,6 +152,11 @@
             socket.emit("entrar_a_sala", id_sala);
         });
 
+        socket.on("disconnect", (data) => {
+            console.log("Se desconectó del servidor");
+            socket.emit("salio de sala", data);
+        });
+
         socket.on("asiginacion_jugador", (jugador_asignado) => {
             jugador = jugador_asignado;
             if(jugador === "X") {

@@ -19,6 +19,7 @@ const server = app.listen(PORT, () => {
 const io = socketIO(server);
 
 let partidas = {}
+let posicionjugadas = {}
 
 io.on('connection', (socket) => {
   console.log('Cliente conectado');
@@ -26,14 +27,19 @@ io.on('connection', (socket) => {
   socket.on("entrar_a_sala", (id_sala) => {
     console.log("Ingresa un jugador a la sala " + id_sala);
     socket.join(id_sala);
+    socket.roomID = id_sala;
 
     if(partidas[id_sala] == undefined){
       // no se habia creado la sala
       socket.emit("asiginacion_jugador", "X");
       partidas[id_sala] = {"cantidad_jugadores": 1, "turno": "X", "jugadas_realizadas": []}
+      posicionjugadas[id_sala] = {"X": []};
+      socket.emit("jugadas_realizadas",partidas[id_sala]);
     }else{
       socket.emit("asiginacion_jugador", "O");
+      socket.emit("jugadas_realizadas",partidas[id_sala]);
       partidas[id_sala]["cantidad_jugadores"] = 2;
+      posicionjugadas[id_sala]={"O":[]};
     }
   });
 
@@ -49,11 +55,21 @@ io.on('connection', (socket) => {
 
     if(se_permite_jugada) {
       partidas[id_sala]["turno"] = jugador === "X" ? "O" : "X";
+      posicionjugadas[id_sala]["X"].push(jugada);
+      console.log(posicionjugadas);
       partidas[id_sala]["jugadas_realizadas"].push(jugada);
       io.to(id_sala).emit("mostrar_letra", {"id_casilla": jugada, "letra": jugador});
+      validarJugadas( partidas[id_sala] );
     }
 
-  })
+  });
 
-  socket.on('disconnect', () => console.log("Cliente desconectado"));
+  socket.on('disconnect', (data) => {
+    console.log("Cliente desconectado", JSON.stringify(data));
+    console.log(socket);
+  });
 });
+
+function validarJugadas(datos) {
+  console.log(datos);
+}
