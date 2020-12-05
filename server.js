@@ -39,7 +39,7 @@ io.on('connection', (socket) => {
       socket.emit("asiginacion_jugador", "O");
       socket.emit("jugadas_realizadas",partidas[id_sala]);
       partidas[id_sala]["cantidad_jugadores"] = 2;
-      posicionjugadas[id_sala]={"O":[]};
+      posicionjugadas[id_sala]["O"]=[];
     }
   });
 
